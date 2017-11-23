@@ -54,25 +54,25 @@ function publishPosition(deviceId) {
         }    
     }else{ 
         var data = result.result
-        res[data.deviceId] = {"trip0": [{"lat": {"value": parseFloat(data.latitude)}, "long": {"value": parseFloat(data.longitude) }, "speed" : {
-            "value" : data.speed,
-            "description" : "kmh"}}], "source" : "simulator", "order" : [ "trip0" ]}
+        res[data.deviceId] = {
+            "trip0": [
+                {
+                    "lat": {"value": parseFloat(data.latitude)},
+                    "long": {"value": parseFloat(data.longitude)},
+                    "name": {"value": data.name},
+                    "number": {"value": data.number},
+                    "deviceId": {"value": data.deviceId},
+                    "vehicleType": {"value": data.vehicleType},
+                    "speed" : {
+                        "value" : data.speed,
+                        "description" : "kmh"}}
+            ],
+            "source" : "simulator",
+            "order" : [ "trip0" ]
+        }
         //Publish new location data for device
-        publish("responseChannel", {"id": data["formtype"], "result": res});
+        var position = "position_"+ data.deviceId;
+        publish("responseChannel", {"id": position, "result": res});
         
-        //Publish device calculated speed
-         var speedId = "speedometer_speed_"+"_"+ data.deviceId
-         publish("responseChannel", {"id": speedId, "result": parseFloat(data.speed)});
-        
-        var deviceAggregates =  aggregates.getAggregates(data.deviceId); 
-        var avgSpeedId = "speedometer_average_speed_"+"_"+ data.deviceId
-        //Publish average speed whenever calculated
-        publish("responseChannel", {"id": avgSpeedId, "result": parseFloat(deviceAggregates.average) * 1000});
-        
-        
-        var deviceDataPoints =  aggregates.getDataPoints(data.deviceId);
-        var lineChartId = "linechart_speed_"+ data.deviceId;
-        //publish new registered speed point
-        publish("responseChannel", {"id": lineChartId, "result": deviceDataPoints});
     }
 }
